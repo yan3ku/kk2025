@@ -96,7 +96,7 @@ STRING    process_token(yytext, "KW_STRING", "", KW_STRING) ;
 
  /* detecting terminal symbols specified with regular expressions */
  /* identifiers */
-[a-zA-Z][a-zA-Z0-9_]*  process_token(yytext, "IDENT", yytext, IDENT);
+[_a-zA-Z][_a-zA-Z0-9]*  process_token(yytext, "IDENT", yytext, IDENT);
 
  /* intergers */
 [0-9]+        process_token(yytext, "INTEGER_CONST", yytext, INTEGER_CONST) ;
@@ -114,7 +114,7 @@ STRING    process_token(yytext, "KW_STRING", "", KW_STRING) ;
 ".."  return process_token(yytext, "RANGE", "", RANGE);
 
  /* one character operators and punctuation */
-. return process_token(yytext, "", yytext, yytext[0]);
+. return process_token(yytext, yytext, "", yytext[0]);
 
 %%
 
