@@ -1,3 +1,4 @@
+
 %{
 #include <stdio.h> /* printf() */
 #include <string.h> /* strcpy */
@@ -59,7 +60,7 @@ int yylineno;
 
 ' { yymore(); BEGIN STRING; }
 <STRING>{
-    [^']+' { BEGIN INITIAL; return process_token(yytext, "STRING", yytext, STRING_CONST); }
+    [^']+' { BEGIN INITIAL; return process_token(yytext, "STRING_CONST", yytext, STRING_CONST); }
 }
 
  /* detection of directives in form of {$I name.ext} */
@@ -69,52 +70,50 @@ int yylineno;
 
  /* Detection of keywords (case-insensitive)! */
  /* ..................... */
-PROGRAM  process_token(yytext, "KW_PROGRAM",  "", KW_PROGRAM) ;
-BEGIN    process_token(yytext, "KW_BEGIN",    "", KW_BEGIN) ;
-END      process_token(yytext, "KW_END",      "", KW_END) ;
-USES     process_token(yytext, "KW_USES",     "", KW_USES) ;
-VAR      process_token(yytext, "KW_VAR",      "", KW_VAR) ;
-CONST    process_token(yytext, "KW_CONST",    "", KW_CONST) ;
-IF       process_token(yytext, "KW_CONST",    "", KW_IF) ;
-THEN     process_token(yytext, "KW_THEN",     "", KW_THEN) ;
-ELSE     process_token(yytext, "KW_ELSE",     "", KW_ELSE) ;
+PROGRAM  { return process_token(yytext, "KW_PROGRAM",  "", KW_PROGRAM); }
+BEGIN    { return process_token(yytext, "KW_BEGIN",    "", KW_BEGIN); }
+END      { return process_token(yytext, "KW_END",      "", KW_END); }
+USES     { return process_token(yytext, "KW_USES",     "", KW_USES); }
+VAR      { return process_token(yytext, "KW_VAR",      "", KW_VAR); }
+CONST    { return process_token(yytext, "KW_CONST",    "", KW_CONST); }
+IF       { return process_token(yytext, "KW_IF",       "", KW_IF); }
+THEN     { return process_token(yytext, "KW_THEN",     "", KW_THEN); }
+ELSE     { return process_token(yytext, "KW_ELSE",     "", KW_ELSE); }
 
-CHAR     process_token(yytext, "KW_CHAR",     "", KW_CHAR) ;
-INTEGER  process_token(yytext, "KW_INTEGER",  "", KW_INTEGER) ;
-REAL     process_token(yytext, "KW_REAL",     "", KW_REAL) ;
-FOR      process_token(yytext, "KW_FOR",      "", KW_FOR) ;
-TO       process_token(yytext, "KW_TO",       "", KW_TO) ;
-DO       process_token(yytext, "KW_DO",       "", KW_DO) ;
-FUNCTION process_token(yytext, "KW_FUNCTION", "", KW_FUNCTION) ;
+CHAR     { return process_token(yytext, "KW_CHAR",     "", KW_CHAR); }
+INTEGER  { return process_token(yytext, "KW_INTEGER",  "", KW_INTEGER); }
+REAL     { return process_token(yytext, "KW_REAL",     "", KW_REAL); }
+FOR      { return process_token(yytext, "KW_FOR",      "", KW_FOR); }
+TO       { return process_token(yytext, "KW_TO",       "", KW_TO); }
+DO       { return process_token(yytext, "KW_DO",       "", KW_DO); }
+FUNCTION { return process_token(yytext, "KW_FUNCTION", "", KW_FUNCTION); }
 
-PROCEDURE process_token(yytext, "KW_PROCEDURE", "", KW_PROCEDURE) ;
-DOWNTO    process_token(yytext, "KW_DOWNTO", "", KW_DOWNTO) ;
-ARRAY     process_token(yytext, "KW_ARRAY", "", KW_ARRAY) ;
-RECORD    process_token(yytext, "KW_RECORD", "", KW_RECORD) ;
-OF        process_token(yytext, "KW_OF", "", KW_OF) ;
-STRING    process_token(yytext, "KW_STRING", "", KW_STRING) ;
+PROCEDURE { return process_token(yytext, "KW_PROCEDURE", "", KW_PROCEDURE); }
+DOWNTO    { return process_token(yytext, "KW_DOWNTO", "", KW_DOWNTO); }
+ARRAY     { return process_token(yytext, "KW_ARRAY", "", KW_ARRAY); }
+RECORD    { return process_token(yytext, "KW_RECORD", "", KW_RECORD); }
+OF        { return process_token(yytext, "KW_OF", "", KW_OF); }
+STRING    { return process_token(yytext, "KW_STRING", "", KW_STRING); }
 
  /* detecting terminal symbols specified with regular expressions */
  /* identifiers */
-[a-zA-Z][a-zA-Z0-9_]*  process_token(yytext, "IDENT", yytext, IDENT);
+[a-z\_]+[a-z0-9\_]* { return process_token(yytext, "IDENT", yytext, IDENT); }
 
- /* intergers */
-[0-9]+        process_token(yytext, "INTEGER_CONST", yytext, INTEGER_CONST) ;
-
- /* real numbers */
-[0-9]+\.[0-9]+(e[+-]?[0-9]+)? process_token(yytext, "FLOAT_CONST", yytext, FLOAT_CONST) ;
-
+ /* numbers */
+[0-9]+          { return process_token(yytext, "INTEGER_CONST", yytext, INTEGER_CONST); }
+[0-9]+\.[0-9]+  { return process_token(yytext, "FLOAT_CONST", yytext, FLOAT_CONST); }
+[0-9]+\.[0-9]+e[\+\-][0-9]+  { return process_token(yytext, "FLOAT_CONST", yytext, FLOAT_CONST); }
 
  /* cutting out whitespace */
 [ \t\n\r]+  ;
 
  /* multicharacter expressions, e.g.: :=, <= */
-:=	  return process_token(yytext, "ASSIGN", "", ASSIGN);
-\<=	  return process_token(yytext, "LE", "", LE);
-".."  return process_token(yytext, "RANGE", "", RANGE);
+:=	  { return process_token(yytext, "ASSIGN", "", ASSIGN); }
+\<=	  { return process_token(yytext, "LE", "", LE); }
+".."  { return process_token(yytext, "RANGE", "", RANGE); }
 
  /* one character operators and punctuation */
-. return process_token(yytext, "", yytext, yytext[0]);
+.  { return process_token(yytext, yytext, "", yytext[0]); }
 
 %%
 
